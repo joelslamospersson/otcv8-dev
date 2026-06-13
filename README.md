@@ -1,61 +1,94 @@
-# OTCv8 Developer Editon (sources)
+# OTCv8 Developer Edition
 
-Ready to use binaries are available in [OTCv8/otclientv8](https://github.com/OTCv8/otclientv8) repository.
+OTCv8 is a cross-platform Tibia client built with C++17, OpenGL, and Lua scripting. This repository contains the full source code and assets.
 
-OTCv8 sources. You can add whatever you want and create pull request with your changes.
-Accepted pull requests will be added to official OTCv8 version, so if you want a new feature in OTCv8, just add it here and wait for approval.
-If you add custom feature, make sure it's optional and can be enabled via g_game.enableFeature function, otherwise your pull request will be rejected.
+> **Note:** This is a community fork with fixes for modern toolchains (Boost 1.90, VS 2022+, vcpkg).
 
-This repository uses Github Actions to build and test OTCv8 automaticlly whenever you push changes to repository.
+## Prerequisites (Windows)
 
-Check Actions tab to see test results or to download latest binaries. ![Workflow status](https://github.com/OTCv8/otcv8-dev/actions/workflows/ci-cd.yml/badge.svg)
+Before compiling, you'll need:
 
-## Compilation
+1. **Visual Studio 2022 or later** with the following workloads:
+   - "Desktop development with C++"
+   - Windows SDK (10.0.26100.0 or later)
 
-### Automatic
+2. **CMake** (version 3.10+) — included with Visual Studio or [download](https://cmake.org/download/)
 
-You can clone repoistory and use github action build-on-request workload.
+3. **Ninja** — included with Visual Studio or [download](https://github.com/ninja-build/ninja/releases)
 
-### Windows
+4. **vcpkg** — package manager for C++ libraries
+   ```powershell
+   git clone https://github.com/microsoft/vcpkg
+   cd vcpkg
+   .\bootstrap-vcpkg.bat
+   ```
 
-You need visual studio 2019 and vcpkg with commit `3b3bd424827a1f7f4813216f6b32b6c61e386b2e` ([download](https://github.com/microsoft/vcpkg/archive/3b3bd424827a1f7f4813216f6b32b6c61e386b2e.zip)).
+5. **vcpkg dependencies** (install in one command):
+   ```powershell
+   vcpkg install boost-system boost-filesystem boost-asio boost-beast boost-uuid lua51 glew physfs zlib libzip bzip2 openssl --triplet x64-windows
+   ```
 
-Then you install vcpkg dependencies:
-```bash
-vcpkg install boost-iostreams:x86-windows-static boost-asio:x86-windows-static boost-beast:x86-windows-static boost-system:x86-windows-static boost-variant:x86-windows-static boost-lockfree:x86-windows-static boost-process:x86-windows-static boost-program-options:x86-windows-static luajit:x86-windows-static glew:x86-windows-static boost-filesystem:x86-windows-static boost-uuid:x86-windows-static physfs:x86-windows-static openal-soft:x86-windows-static libogg:x86-windows-static libvorbis:x86-windows-static zlib:x86-windows-static libzip:x86-windows-static openssl:x86-windows-static
+6. **Git** for cloning the repository
+
+## Compilation (Windows)
+
+### Using Visual Studio (CMakeSettings.json)
+
+1. Open the project folder in Visual Studio
+2. Visual Studio will automatically detect `CMakeSettings.json`
+3. Select the `x64-Debug` or `x64-Release` configuration from the dropdown
+4. Build: **Build → Build All** (Ctrl+Shift+B)
+
+### Using Command Line (Ninja)
+
+Open a **Visual Studio Developer Command Prompt** (x64):
+
+```cmd
+cd C:\path\to\otcv8-dev-master
+mkdir out\build\x64-Release
+cd out\build\x64-Release
+cmake ..\..\.. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --build .
 ```
 
-and then you can compile static otcv8 version.
+The compiled executable will be at `out\build\x64-Release\otclient.exe`.
 
-### Linux
+### Build Configurations
 
-on linux you need:
-- vcpkg from commit `761c81d43335a5d5ccc2ec8ad90bd7e2cbba734e`
-- boost >=1.67 and libzip-dev, physfs >= 3
-- gcc >=9
+| Configuration | Description |
+|---|---|
+| `Release` | Optimized build for end users |
+| `Debug` | Debug symbols, no optimizations — for development |
 
-Then just run mkdir build && cd build && cmake .. && make -j8
+## Running
 
-### Android
+Run the client from the **project root directory** (where the `data/` folder lives):
 
-To compile on android you need to create C:\android with
-- android-ndk-r21b https://dl.google.com/android/repository/android-ndk-r21d-windows-x86_64.zip
-- libs from android_libs.7z
+```cmd
+cd C:\path\to\otcv8-dev
+otclient.exe
+```
 
-Also install android extension for visual studio
-In visual studio go to options -> cross platform -> c++ and set Android NDK to C:\android\android-ndk-r21b
-Right click on otclientv8 -> proporties -> general and change target api level to android-25
+The client will load all modules from `data/`, `modules/`, `layouts/`, and `mods/`.
 
-Put data.zip in android/otclientv8/assets
-You can use powershell script create_android_assets.ps1 to create them automaticly (won't be encrypted)
+## Project Structure
 
-## Useful tips
+| Path | Description |
+|---|---|
+| `src/` | C++ source code (client, framework, android) |
+| `data/` | Game assets (images, fonts, sounds, shaders, styles) |
+| `modules/` | Lua modules for game UI and logic |
+| `layouts/` | UI layout definitions |
+| `mods/` | Optional modifications |
+| `init.lua` | Lua entry point for bootstrapping |
 
-- To run tests manually, unpack tests.7z and use command `otclient_debug.exe --test`
-- To test mobile UI use command `otclient_debug.exe --mobile`
+## Release Packages
 
-## Links
+Pre-built releases are available on the [Releases](https://github.com/joelslamospersson/otcv8-dev/releases) page:
 
-- Discord: https://discord.gg/feySup6
-- Forum: http://otclient.net
-- Email: otclient@otclient.ovh
+- **Source code** — zip of the repository source
+- **Ready-2-Run** — pre-compiled executable with all required DLLs and assets
+
+## License
+
+See [LICENSE](LICENSE) for details.
