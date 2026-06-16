@@ -144,3 +144,7 @@ run_debug.bat
 
 # Other projects
 tfs1098/
+
+# Release packages
+release-pkg/
+otcv8-dev-*.zip
