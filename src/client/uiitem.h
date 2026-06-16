@@ -61,7 +61,6 @@ protected:
     stdext::boolean<false> m_showId;
     stdext::boolean<true> m_showCount;
     std::string m_shader;
-    std::string m_countText;
-};
+    std::string m_countText;    ticks_t m_lastDecayUpdate = 0;};
 
 #endif

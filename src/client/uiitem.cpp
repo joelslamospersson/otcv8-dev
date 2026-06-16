@@ -26,6 +26,8 @@
 #include <framework/otml/otml.h>
 #include <framework/graphics/graphics.h>
 #include <framework/graphics/fontmanager.h>
+#include <framework/core/logger.h>
+#include "timerdebug.h"
 
 UIItem::UIItem()
 {
@@ -61,6 +63,24 @@ void UIItem::drawSelf(Fw::DrawPane drawPane)
 
         if (m_showId) {
             g_drawQueue->addText(m_font, std::to_string(m_item->getServerId()), m_rect, Fw::AlignBottomRight, Color(231, 231, 231));
+        }
+		
+        // Item Timer Display — real-time countdown (TFS 1.4.2)
+        if (g_game.getFeature(Otc::GameDisplayItemDuration) && m_font && m_item && m_item->getDuration() > 0) {
+            timerDebug(("UIItem drawSelf: timer display attempt, id=" + std::to_string(m_item->getId()) + " duration=" + std::to_string(m_item->getDuration()) + " decaying=" + std::to_string(m_item->isDecaying())).c_str());
+            m_item->tickDuration();
+            uint32_t secs = m_item->getDuration();
+            if (secs == 0) return;
+
+            char buf[16];
+            if (secs >= 3600)
+                snprintf(buf, sizeof(buf), "%02u:%02u", secs / 3600, (secs % 3600) / 60);
+            else
+                snprintf(buf, sizeof(buf), "%02u:%02u", secs / 60, secs % 60);
+
+            // White = actively decaying, Red = paused
+            Color timerColor = m_item->isDecaying() ? Color(255, 255, 255) : Color(255, 68, 68);
+            g_drawQueue->addText(m_font, std::string(buf), Rect(m_rect.topLeft(), m_rect.bottomRight() - Point(3, 0)), Fw::AlignBottomLeft, timerColor);
         }
     }
 

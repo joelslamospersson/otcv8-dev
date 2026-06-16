@@ -24,6 +24,8 @@ set(client_SOURCES ${client_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/game.h
     ${CMAKE_CURRENT_LIST_DIR}/item.cpp
     ${CMAKE_CURRENT_LIST_DIR}/item.h
+    ${CMAKE_CURRENT_LIST_DIR}/timerdebug.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/timerdebug.h
     ${CMAKE_CURRENT_LIST_DIR}/localplayer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/localplayer.h
     ${CMAKE_CURRENT_LIST_DIR}/map.cpp

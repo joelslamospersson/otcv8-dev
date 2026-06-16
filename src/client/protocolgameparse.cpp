@@ -28,6 +28,8 @@
 #include "const.h"
 #include "map.h"
 #include "item.h"
+#include "timerdebug.h"
+#include <framework/core/logger.h>
 #include "effect.h"
 #include "missile.h"
 #include "tile.h"
@@ -3129,13 +3131,26 @@ void ProtocolGame::parseProgressBar(const InputMessagePtr& msg)
 void ProtocolGame::parseFeatures(const InputMessagePtr& msg)
 {
     int features = msg->getU16();
+    timerDebug(("parseFeatures: count=" + std::to_string(features)).c_str());
     for (int i = 0; i < features; ++i) {
         Otc::GameFeature feature = (Otc::GameFeature)msg->getU8();
         bool enabled = msg->getU8() > 0;
+        timerDebug(("parseFeatures: feature=" + std::to_string((int)feature) + " enabled=" + std::to_string(enabled)).c_str());
         if (enabled) {
             g_game.enableFeature(feature);
+            // TFS 1.4.2 sends feature 88 (GameThingClock) to enable item duration.
+            // OTCv8's GameSequencedPackets occupies the same number, so map it
+            // to our GameDisplayItemDuration (129) as well.
+            if (feature == Otc::GameSequencedPackets) {
+                g_game.enableFeature(Otc::GameDisplayItemDuration);
+                timerDebug("parseFeatures: Mapped GameSequencedPackets(88) -> GameDisplayItemDuration(129)");
+            }
         } else {
             g_game.disableFeature(feature);
+            if (feature == Otc::GameSequencedPackets) {
+                g_game.disableFeature(Otc::GameDisplayItemDuration);
+                timerDebug("parseFeatures: Unmapped GameDisplayItemDuration(129)");
+            }
         }
     }
 }
@@ -3626,6 +3641,14 @@ ItemPtr ProtocolGame::getItem(const InputMessagePtr& msg, int id, bool hasDescri
             uint64 value = msg->getU64();
             item->setCustomAttribute(key, value);
         }
+    }
+
+    if (g_game.getFeature(Otc::GameDisplayItemDuration)) {
+        uint32 duration = msg->getU32();  // remaining seconds (TFS 1.4.2)
+        uint8 decaying  = msg->getU8();   // 1 = actively decaying, 0 = paused
+        timerDebug(("getItem timer: id=" + std::to_string(id) + " duration=" + std::to_string(duration) + " decaying=" + std::to_string(decaying)).c_str());
+        item->setDuration(duration);
+        item->setDecaying(decaying == 0x01);
     }
 
     return item;

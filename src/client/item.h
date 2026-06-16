@@ -94,6 +94,13 @@ public:
     void setTooltip(const std::string& str) { m_tooltip = str; }
     void setQuickLootFlags(uint32 flags) { m_quickLootFlags = flags; }
     void setShader(const std::string& str) { m_shader = str; }
+	
+	// Item Timer Display TFS 1.4.2
+    uint32_t getDuration() const { return m_duration; }
+    void    setDuration(uint32_t v) { m_duration = v; m_durationUpdate = 0; }
+    bool    isDecaying() const { return m_decaying; }
+    void    setDecaying(bool v) { m_decaying = v; }
+    void    tickDuration(); // decrement duration in real-time when decaying
 
     int getCountOrSubType() { return m_countOrSubType; }
     int getSubType();
@@ -178,6 +185,11 @@ private:
     uint32 m_quickLootFlags;
     uint8 m_phase;
     ticks_t m_lastPhase;
+	
+	// Item timer TFS 1.4.2
+	uint32_t m_duration = 0;
+    bool m_decaying = false;
+    ticks_t m_durationUpdate = 0;
 
     stdext::packed_storage<uint16> m_customAttribs;
 };

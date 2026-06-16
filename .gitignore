@@ -130,3 +130,17 @@ ipch/
 # ReSharper is a .NET coding add-in
 _ReSharper*/
 *.[Rr]e[Ss]harper
+
+# Build artifacts (Ninja)
+.ninja_deps
+.ninja_log
+build.ninja
+otcicon.res
+VSInheritEnvironments.txt
+run_debug.bat
+
+# Continue extension config
+.continue/
+
+# Other projects
+tfs1098/

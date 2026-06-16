@@ -39,6 +39,8 @@
 
 #include <framework/util/stats.h>
 
+#include "timerdebug.h"
+
 Item::Item() :
     m_clientId(0),
     m_serverId(0),
@@ -300,6 +302,33 @@ ItemPtr Item::clone()
     ItemPtr item = ItemPtr(new Item);
     *(item.get()) = *this;
     return item;
+}
+
+void Item::tickDuration()
+{
+    if (!m_decaying || m_duration == 0) {
+        timerDebug(("tickDuration: skipped (decaying=" + std::to_string(m_decaying) + " duration=" + std::to_string(m_duration) + ")").c_str());
+        return;
+    }
+
+    ticks_t now = stdext::millis();
+    if (m_durationUpdate == 0) {
+        m_durationUpdate = now;
+        timerDebug(("tickDuration: first call, init m_durationUpdate=" + std::to_string(now)).c_str());
+        return;
+    }
+
+    uint32_t elapsed = static_cast<uint32_t>((now - m_durationUpdate) / 1000);
+    if (elapsed > 0) {
+        if (elapsed >= m_duration) {
+            timerDebug(("tickDuration: expired, was " + std::to_string(m_duration) + "s, elapsed=" + std::to_string(elapsed)).c_str());
+            m_duration = 0;
+        } else {
+            timerDebug(("tickDuration: decrement " + std::to_string(m_duration) + " -> " + std::to_string(m_duration - elapsed) + " (elapsed=" + std::to_string(elapsed) + ")").c_str());
+            m_duration -= elapsed;
+        }
+        m_durationUpdate = now;
+    }
 }
 
 void Item::calculatePatterns(int& xPattern, int& yPattern, int& zPattern)

@@ -170,6 +170,7 @@ GameDoublePlayerGoodsMoney = 85
 GameCreatureWalkthrough = 86 -- add Walkthrough for versions less than 854, unpass = msg->getU8(); in protocolgameparse.cpp
 GameDoubleTradeMoney = 87
 GameSequencedPackets = 88
+GameDisplayItemDuration = 129
 GameTibia12Protocol = 89
 
 GameNewWalking = 90

@@ -197,4 +197,7 @@ function updateFeatures(version)
     end
     
     modules.game_things.load()
+    
+    -- Always enable item duration display (server always sends the 5-byte format)
+    g_game.enableFeature(GameDisplayItemDuration)
 end
