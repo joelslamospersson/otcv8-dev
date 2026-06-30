@@ -194,9 +194,11 @@ local function onTibia12HTTPResult(session, playdata)
   g_game.chooseRsa(G.host)
   g_game.setClientVersion(G.clientVersion)
   g_game.setProtocolVersion(g_game.getClientProtocolVersion(G.clientVersion))
-  g_game.setCustomOs(-1) -- disable
-  if not g_game.getFeature(GameExtendedOpcode) then
-    g_game.setCustomOs(5) -- set os to windows if opcodes are disabled
+  -- Use OTClient OS (11=Windows, 10=Linux) so server enables extended opcodes
+  if g_app.getOs() == 'windows' then
+    g_game.setCustomOs(11)
+  else
+    g_game.setCustomOs(10)
   end
   
   onCharacterList(nil, characters, account, nil)  
@@ -265,8 +267,12 @@ local function onHTTPResult(data, err)
   G.clientVersion = version
   g_game.setClientVersion(version)
   g_game.setProtocolVersion(g_game.getClientProtocolVersion(version))  
-  g_game.setCustomOs(-1) -- disable
-  
+  if g_app.getOs() == 'windows' then
+    g_game.setCustomOs(11)
+  else
+    g_game.setCustomOs(10)
+  end
+
   if rsa ~= nil then
     g_game.setRsa(rsa)
   end
@@ -520,10 +526,11 @@ function EnterGame.doLogin(account, password, token, host)
   g_game.setClientVersion(G.clientVersion)
   g_game.setProtocolVersion(g_game.getClientProtocolVersion(G.clientVersion))
   g_game.setCustomProtocolVersion(0)
-  g_game.setCustomOs(-1) -- disable
   g_game.chooseRsa(G.host)
-  if #server_params <= 3 and not g_game.getFeature(GameExtendedOpcode) then
-    g_game.setCustomOs(2) -- set os to windows if opcodes are disabled
+  if g_app.getOs() == 'windows' then
+    g_game.setCustomOs(11)
+  else
+    g_game.setCustomOs(10)
   end
 
   -- extra features from init.lua

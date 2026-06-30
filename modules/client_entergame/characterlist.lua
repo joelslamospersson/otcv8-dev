@@ -30,6 +30,14 @@ local function tryLogin(charInfo, tries)
   end
 
   CharacterList.hide()
+  if G.clientVersion then
+    local serverParams = G.host and G.host:split(":") or {}
+    g_game.setClientVersion(G.clientVersion)
+    g_game.setProtocolVersion(g_game.getClientProtocolVersion(G.clientVersion))
+    for i = 4, #serverParams do
+      g_game.enableFeature(tonumber(serverParams[i]))
+    end
+  end
   g_game.loginWorld(G.account, G.password, charInfo.worldName, charInfo.worldHost, charInfo.worldPort, charInfo.characterName, G.authenticatorToken, G.sessionKey)
   g_logger.info("Login to " .. charInfo.worldHost .. ":" .. charInfo.worldPort)
   loadBox = displayCancelBox(tr('Please wait'), tr('Connecting to game server...'))
