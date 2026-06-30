@@ -1,0 +1,77 @@
+TooltipPanel < UIWidget
+  background-color: #0F0D0AD9
+  margin: 0
+  padding: 10
+  min-width: 180
+  max-width: 320
+  image-border: 8
+  image-source: /modules/game_tooltip/images/border.png
+  phantom: true
+
+TooltipHeaderIcon < UIItem
+  width: 32
+  height: 32
+
+TooltipHeaderName < UILabel
+  font: verdana-11px-monochrome
+  color: #E1B437FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+
+TooltipCategory < UILabel
+  font: verdana-9px
+  color: #919191FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+
+TooltipSectionHeader < UILabel
+  font: verdana-9px
+  color: #A57D23FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+
+TooltipDiamondBullet < UIWidget
+  width: 8
+  height: 8
+  image-source: /modules/game_tooltip/images/diamond.png
+
+TooltipStatText < UILabel
+  font: verdana-9px
+  color: #DCDCDCFF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+  text-wrap: true
+
+TooltipLockedText < UILabel
+  font: verdana-9px
+  color: #7EC8E3FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+  text-wrap: true
+
+TooltipEmptyText < UILabel
+  font: verdana-9px
+  color: #888888FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+  text-wrap: true
+
+TooltipFooterLabel < UILabel
+  font: verdana-9px
+  color: #E1B437FF
+  text-align: left
+  margin: 0
+  text-auto-resize: true
+
+TooltipFooterValue < UILabel
+  font: verdana-9px
+  color: #DCDCDCFF
+  text-align: right
+  text-auto-resize: true
+  text-wrap: true

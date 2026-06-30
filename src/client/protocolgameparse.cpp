@@ -3095,10 +3095,11 @@ void ProtocolGame::parseExtendedOpcode(const InputMessagePtr& msg)
     int opcode = msg->getU8();
     std::string buffer = msg->getString();
 
-    if (opcode == 0)
+    if (opcode == 0) {
         m_enableSendExtendedOpcode = true;
-    else
+    } else {
         callLuaField("onExtendedOpcode", opcode, buffer);
+    }
 }
 
 void ProtocolGame::parseChangeMapAwareRange(const InputMessagePtr& msg)
@@ -3270,7 +3271,8 @@ int ProtocolGame::setFloorDescription(const InputMessagePtr& msg, int x, int y, 
 int ProtocolGame::setTileDescription(const InputMessagePtr& msg, Position position)
 {
     g_map.cleanTile(position);
-    if (msg->peekU16() >= 0xff00)
+    uint16 peekVal = msg->peekU16();
+    if (peekVal >= 0xff00)
         return msg->getU16() & 0xff;
 
     if (g_game.getFeature(Otc::GameNewWalking)) {
@@ -3284,8 +3286,10 @@ int ProtocolGame::setTileDescription(const InputMessagePtr& msg, Position positi
     }
 
     for (int stackPos = 0; stackPos < 256; stackPos++) {
-        if (msg->peekU16() >= 0xff00)
+        uint16 peekVal2 = msg->peekU16();
+        if (peekVal2 >= 0xff00) {
             return msg->getU16() & 0xff;
+        }
 
         if (!g_game.getFeature(Otc::GameNewCreatureStacking) && stackPos > Tile::MAX_THINGS)
             g_logger.traceError(stdext::format("too many things, pos=%s, stackpos=%d", stdext::to_string(position), stackPos));
@@ -3630,9 +3634,9 @@ ItemPtr ProtocolGame::getItem(const InputMessagePtr& msg, int id, bool hasDescri
         }
     }
 
-    if (g_game.getFeature(Otc::GameItemTooltip) && hasDescription) {
-        item->setTooltip(msg->getString());
-    }
+    // Tooltip data is transported via opcode 205 (parseItemTooltip),
+    // not inline in the item packet. The server's addItem() does not
+    // write tooltip bytes here.
 
     if (g_game.getFeature(Otc::GameItemCustomAttributes)) {
         uint16 size = msg->getU16();
@@ -3644,9 +3648,8 @@ ItemPtr ProtocolGame::getItem(const InputMessagePtr& msg, int id, bool hasDescri
     }
 
     if (g_game.getFeature(Otc::GameDisplayItemDuration)) {
-        uint32 duration = msg->getU32();  // remaining seconds (TFS 1.4.2)
-        uint8 decaying  = msg->getU8();   // 1 = actively decaying, 0 = paused
-        timerDebug(("getItem timer: id=" + std::to_string(id) + " duration=" + std::to_string(duration) + " decaying=" + std::to_string(decaying)).c_str());
+        uint32 duration = msg->getU32();
+        uint8 decaying = msg->getU8();
         item->setDuration(duration);
         item->setDecaying(decaying == 0x01);
     }

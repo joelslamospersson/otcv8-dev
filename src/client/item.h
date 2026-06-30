@@ -92,6 +92,9 @@ public:
     void setSubType(int subType) { m_countOrSubType = subType; }
     void setColor(const Color& c) { m_color = c; }
     void setTooltip(const std::string& str) { m_tooltip = str; }
+    // Preloaded tooltip data (binary blob from server, lazy-deserialized on hover)
+    void setTooltipData(const std::string& data) { m_tooltipData = data; }
+    std::string getTooltipData() { return m_tooltipData; }
     void setQuickLootFlags(uint32 flags) { m_quickLootFlags = flags; }
     void setShader(const std::string& str) { m_shader = str; }
 	
@@ -180,6 +183,7 @@ private:
     Color m_color;
     bool m_async;
     std::string m_tooltip;
+    std::string m_tooltipData;  // preloaded tooltip binary (from server item packet)
     std::string m_shader;
 
     uint32 m_quickLootFlags;

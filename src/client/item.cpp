@@ -58,6 +58,16 @@ ItemPtr Item::create(int id, int countOrSubtype)
     ItemPtr item(new Item);
     item->setId(id);
     item->setCountOrSubType(countOrSubtype);
+    // Copy description from ItemType if available
+    {
+        const ItemTypePtr& itemTypePtr = g_things.getItemType(static_cast<uint16>(id));
+        if (itemTypePtr && !itemTypePtr->isNull()) {
+            std::string desc = itemTypePtr->getDesc();
+            if (!desc.empty()) {
+                item->setDescription(desc);
+            }
+        }
+    }
     return item;
 }
 

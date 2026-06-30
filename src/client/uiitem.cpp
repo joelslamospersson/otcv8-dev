@@ -66,7 +66,7 @@ void UIItem::drawSelf(Fw::DrawPane drawPane)
         }
 		
         // Item Timer Display — real-time countdown (TFS 1.4.2)
-        if (g_game.getFeature(Otc::GameDisplayItemDuration) && m_font && m_item && m_item->getDuration() > 0) {
+        if (m_showTimer && g_game.getFeature(Otc::GameDisplayItemDuration) && m_font && m_item && m_item->getDuration() > 0) {
             timerDebug(("UIItem drawSelf: timer display attempt, id=" + std::to_string(m_item->getId()) + " duration=" + std::to_string(m_item->getDuration()) + " decaying=" + std::to_string(m_item->isDecaying())).c_str());
             m_item->tickDuration();
             uint32_t secs = m_item->getDuration();

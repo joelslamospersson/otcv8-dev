@@ -1,0 +1,16 @@
+Module
+  name: game_tooltip
+  description: Premium item hover tooltip for inventory, containers, depot, trade, and NPC shop
+  author: OTCv8
+  website: https://github.com/edubart/otclient
+  autoload: true
+  sandboxed: true
+  reloadable: true
+  styles: [ styles ]
+  images: [ images ]
+  scripts: [ tooltip ]
+  @onLoad: init()
+  @onUnload: terminate()
+  
+  load-later:
+    - gamelib

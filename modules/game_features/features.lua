@@ -17,6 +17,12 @@ function updateFeatures(version)
     --g_game.enableFeature(GameExtendedOpcode)
     --g_game.enableFeature(GameMinimapLimitedToSingleFloor) -- it will generate minimap only for current floor
     --g_game.enableFeature(GameSpritesAlphaChannel)
+
+    -- Enable tooltip reading for all items. The server writes tooltip data
+    -- via addItem(const Item*) when m_extendedItemFormat is true (all OTClient
+    -- item-sending functions). Feature 93 is sent by the server to enable
+    -- client-side reading.
+    g_game.enableFeature(GameItemTooltip)
     
     if(version >= 770) then
         g_game.enableFeature(GameLooktypeU16)
@@ -198,6 +204,9 @@ function updateFeatures(version)
     
     modules.game_things.load()
     
-    -- Always enable item duration display (server always sends the 5-byte format)
-    g_game.enableFeature(GameDisplayItemDuration)
+    -- Item duration display is controlled by server feature 88 (GameThingClock)
+    -- The server sends this flag for OTClient connections, which maps to
+    -- GameDisplayItemDuration in parseFeatures(). Do NOT enable unconditionally
+    -- here -- it would cause desync if the server doesn't write the duration bytes.
+    -- g_game.enableFeature(GameDisplayItemDuration)
 end
