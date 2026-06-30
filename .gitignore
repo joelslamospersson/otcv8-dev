@@ -1,5 +1,9 @@
 build
+build-vs/
 out/
+otcv8_clean/
+tfs1098_clean/
+__pycache__/
 data/things
 *.dll
 stderr.txt

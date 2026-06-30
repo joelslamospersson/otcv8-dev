@@ -164,8 +164,9 @@ void Protocol::send(const OutputMessagePtr& outputMessage, bool rawPacket)
     }
 
     // send
-    if (m_connection)
+    if (m_connection) {
         m_connection->write(outputMessage->getHeaderBuffer(), outputMessage->getMessageSize());
+    }
 
     // reset message to allow reuse
     outputMessage->reset();
