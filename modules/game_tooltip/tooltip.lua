@@ -88,8 +88,9 @@ local Theme = {
   },
 }
 
--- Toggle debug logging
-local DEBUG = false
+-- Toggle debug logging — single flag controls ALL tooltip diagnostics
+-- Set to true to enable [DES], [RX], and classification debug output.
+local TOOLTIP_DEBUG = false
 
 -- ═══════════════════════════════════════════════════════════════
 -- Item classification constants
@@ -309,7 +310,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no ThingType available")
   end
   if finalReason:sub(1,6) == "ThingT" then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -337,7 +338,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no ThingType for container check")
   end
   if finalClass ~= ITEM_GENERIC then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -368,7 +369,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no ThingType for fluid container check")
   end
   if finalClass ~= ITEM_GENERIC then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -406,7 +407,7 @@ function ItemClassifier.classify(item, thingType, ctx)
         -- Rings (slot 5) map to ITEM_GENERIC — this is the CORRECT
         -- classification (a ring is not Fluid), and must not be
         -- overridden by MarketData's misleading Splash category.
-        if DEBUG then
+        if TOOLTIP_DEBUG then
           print("[game_tooltip]╔══ Classification Debug ══╗")
           for _, l in ipairs(logLines) do print(l) end
           print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -467,7 +468,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no description stats (empty or missing)")
   end
   if finalClass ~= ITEM_GENERIC then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -505,7 +506,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no MarketData or no category")
   end
   if finalClass ~= ITEM_GENERIC then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -536,7 +537,7 @@ function ItemClassifier.classify(item, thingType, ctx)
     log("SKIP: no ThingType for splash check")
   end
   if finalClass ~= ITEM_GENERIC then
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       print("[game_tooltip]╔══ Classification Debug ══╗")
       for _, l in ipairs(logLines) do print(l) end
       print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -599,7 +600,7 @@ function ItemClassifier.classify(item, thingType, ctx)
   -- ═══════════════════════════════════════════════════════════════
   -- Print debug output
   -- ═══════════════════════════════════════════════════════════════
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     print("[game_tooltip]╔══ Classification Debug ══╗")
     for _, l in ipairs(logLines) do print(l) end
     print("[game_tooltip]  FINAL=" .. (CLASS_NAMES[finalClass] or "?") .. " (" .. tostring(finalClass) .. ")")
@@ -1113,7 +1114,7 @@ function TooltipRenderer:rebuild(data)
   self:_clearAll()
 
   -- Reset tracking stats for this rebuild (DEBUG only)
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     self._stats = {
       expected   = 0,   -- total rows in data sections + footer
       rendered   = 0,   -- rows for which a widget was created
@@ -1126,7 +1127,7 @@ function TooltipRenderer:rebuild(data)
   end
 
   -- Count expected rows from TooltipData (all sections + footer)
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     local allSectionRows = 0
     for _, sec in ipairs(data.sections or {}) do
       allSectionRows = allSectionRows + #(sec.rows or {})
@@ -1134,7 +1135,7 @@ function TooltipRenderer:rebuild(data)
     self._stats.expected = allSectionRows + #(data.footer or {})
   end
 
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     print("[game_tooltip]╔══ RENDERER: rebuild() ══╗")
     print("[game_tooltip]║  sections in data: " .. tostring(#(data.sections or {})))
     print("[game_tooltip]║  expected rows: " .. tostring(self._stats.expected))
@@ -1250,7 +1251,7 @@ function TooltipRenderer:rebuild(data)
     for ri, rowData in ipairs(sec.rows) do
       local rowWidget = self:_buildStatRow(secContainer, rowData)
       secRendered = secRendered + 1
-      if DEBUG then
+      if TOOLTIP_DEBUG then
         self._stats.rendered = self._stats.rendered + 1
 
         -- Log the row for post-verification
@@ -1271,7 +1272,7 @@ function TooltipRenderer:rebuild(data)
     local secH = computeContainerHeight(secContainer, 3)
     local secW = secContainer:getSize() and secContainer:getSize().width or 0
     secContainer:setSize({ width = secW, height = secH })
-    if DEBUG then
+    if TOOLTIP_DEBUG then
       table.insert(self._stats.sectionLog, {
         name     = sec.name or ("Section " .. sectionIndex),
         rows     = secRowCount,
@@ -1299,7 +1300,7 @@ function TooltipRenderer:rebuild(data)
 
     for ri, rowData in ipairs(data.footer) do
       local rowWidget = self:_buildFooterRow(footerContainer, rowData)
-      if DEBUG then
+      if TOOLTIP_DEBUG then
         self._stats.rendered = self._stats.rendered + 1
 
         local label = rowData.label or ""
@@ -1340,7 +1341,7 @@ function TooltipRenderer:rebuild(data)
   -- ═══════════════════════════════════════════════════════════════
   -- 6. Post-render verification (DEBUG only)
   -- ═══════════════════════════════════════════════════════════════
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     self:_verifyRendering(data, finalH)
   end
 end
@@ -2030,7 +2031,7 @@ end
 
 -- Verify an Item by probing every available Lua-bound method and logging results.
 local function verifyItemAPI(item, label)
-  if not DEBUG then return end
+  if not TOOLTIP_DEBUG then return end
   print("[game_tooltip] === Item API Probe [" .. label .. "] ===")
 
   local checks = {
@@ -2077,7 +2078,7 @@ end
 
 -- Verify a ThingType by probing every available property.
 local function verifyThingType(itemId)
-  if not DEBUG then return end
+  if not TOOLTIP_DEBUG then return end
   local ok, tt = pcall(g_things.getThingType, itemId, ThingCategoryItem)
   if not ok or not tt then
     print("[game_tooltip] verifyThingType: cannot get ThingType for " .. tostring(itemId))
@@ -2810,7 +2811,7 @@ local TEST_ITEMS = {
 }
 
 local function validateClassifications()
-  if not DEBUG then return end
+  if not TOOLTIP_DEBUG then return end
 
   print("[game_tooltip] ╔══ Classification Validation ══╗")
   print("[game_tooltip] ║  Testing items via ThingType    ║")
@@ -2968,6 +2969,7 @@ local _RX_NAMES = {
   [86]="SECTIONS",[87]="FOOTER",
 }
 local function _rxLog(before, tag, ptype, pbytes, after, val)
+  if not TOOLTIP_DEBUG then return end
   local name = _RX_NAMES[tag] or ("UNKNOWN("..tostring(tag)..")")
   local vs = ""
   if val ~= nil then vs = " value=" .. tostring(val) end
@@ -2975,32 +2977,32 @@ local function _rxLog(before, tag, ptype, pbytes, after, val)
 end
 
 function ServerData._deserialize(data)
-  print("[DES] ENTER dataLen=" .. tostring(#data))
+  if TOOLTIP_DEBUG then print("[DES] ENTER dataLen=" .. tostring(#data)) end
   if not data or #data < 4 then
-    print("[DES] EARLY RETURN: data too short, len=" .. tostring(#data))
+    if TOOLTIP_DEBUG then print("[DES] EARLY RETURN: data too short, len=" .. tostring(#data)) end
     return nil
   end
   local pos = 1
-  local v, p = _readU8(data, pos); if not v then print("[DES] truncated version"); return nil end; pos = p
-  print("[DES] version=" .. tostring(v))
+  local v, p = _readU8(data, pos); if not v then if TOOLTIP_DEBUG then print("[DES] truncated version") end; return nil end; pos = p
+  if TOOLTIP_DEBUG then print("[DES] version=" .. tostring(v)) end
   if v ~= 1 then
-    print("[DES] EARLY RETURN: bad version " .. tostring(v))
+    if TOOLTIP_DEBUG then print("[DES] EARLY RETURN: bad version " .. tostring(v)) end
     return nil
   end
-  local itemId, p = _readU16LE(data, pos); if not itemId then print("[DES] truncated itemId"); return nil end; pos = p
-  print("[DES] itemId=" .. tostring(itemId))
-  local displayName, p = _readStr16(data, pos); if not displayName then print("[DES] truncated name"); return nil end; pos = p
-  print("[DES] displayName='" .. tostring(displayName) .. "' pos=" .. tostring(pos))
-  local categoryIdx, p = _readU8(data, pos); if not categoryIdx then print("[DES] truncated category"); return nil end; pos = p
-  print("[DES] categoryIdx=" .. tostring(categoryIdx) .. " pos=" .. tostring(pos))
+  local itemId, p = _readU16LE(data, pos); if not itemId then if TOOLTIP_DEBUG then print("[DES] truncated itemId") end; return nil end; pos = p
+  if TOOLTIP_DEBUG then print("[DES] itemId=" .. tostring(itemId)) end
+  local displayName, p = _readStr16(data, pos); if not displayName then if TOOLTIP_DEBUG then print("[DES] truncated name") end; return nil end; pos = p
+  if TOOLTIP_DEBUG then print("[DES] displayName='" .. tostring(displayName) .. "' pos=" .. tostring(pos)) end
+  local categoryIdx, p = _readU8(data, pos); if not categoryIdx then if TOOLTIP_DEBUG then print("[DES] truncated category") end; return nil end; pos = p
+  if TOOLTIP_DEBUG then print("[DES] categoryIdx=" .. tostring(categoryIdx) .. " pos=" .. tostring(pos)) end
 
   local scalars = {}
   local tlvIterations = 0
   while pos <= #data do
     tlvIterations = tlvIterations + 1
-    if tlvIterations > 200 then print("[DES] TLV iteration limit reached"); break end
+    if tlvIterations > 200 then if TOOLTIP_DEBUG then print("[DES] TLV iteration limit reached") end; break end
     local rx_before = pos
-    local tag, p = _readU8(data, pos); if not tag then print("[DES] truncated tag, aborting"); break end; pos = p
+    local tag, p = _readU8(data, pos); if not tag then if TOOLTIP_DEBUG then print("[DES] truncated tag, aborting") end; break end; pos = p
     if tag == ST.END then
       _rxLog(rx_before, tag, "end", 1, pos)
       break
@@ -3009,24 +3011,24 @@ function ServerData._deserialize(data)
         or tag == ST.SPECIAL_DESC or tag == ST.WRITTEN_TEXT
         or tag == ST.WRITTEN_BY or tag == ST.RUNE_SPELL_NAME
         or tag == ST.DESCRIPTION then
-      local s, np = _readStr16(data, pos); if not s then print("[DES] truncated string, aborting"); return nil end; scalars[tag] = s; pos = np
+      local s, np = _readStr16(data, pos); if not s then if TOOLTIP_DEBUG then print("[DES] truncated string, aborting") end; return nil end; scalars[tag] = s; pos = np
       _rxLog(rx_before, tag, "string", #s + 2, pos, s)
     elseif tag == ST.SECTIONS then
       local rx_before_sc = pos
-      local sc, np = _readU16LE(data, pos); if not sc then print("[DES] truncated section count"); return nil end; pos = np
-      if sc > MAX_SECTIONS then print("[DES] section count " .. tostring(sc) .. " exceeds max " .. tostring(MAX_SECTIONS)); sc = MAX_SECTIONS end
+      local sc, np = _readU16LE(data, pos); if not sc then if TOOLTIP_DEBUG then print("[DES] truncated section count") end; return nil end; pos = np
+      if sc > MAX_SECTIONS then if TOOLTIP_DEBUG then print("[DES] section count " .. tostring(sc) .. " exceeds max " .. tostring(MAX_SECTIONS)) end; sc = MAX_SECTIONS end
       local sections = {}
       for _ = 1, sc do
-        local sn, sp = _readStr16(data, pos); if not sn then print("[DES] truncated section name"); return nil end; pos = sp
-        local rc, rp = _readU16LE(data, pos); if not rc then print("[DES] truncated row count"); return nil end; pos = rp
-        if rc > MAX_ROWS_PER_SECTION then print("[DES] row count " .. tostring(rc) .. " exceeds max " .. tostring(MAX_ROWS_PER_SECTION)); rc = MAX_ROWS_PER_SECTION end
+        local sn, sp = _readStr16(data, pos); if not sn then if TOOLTIP_DEBUG then print("[DES] truncated section name") end; return nil end; pos = sp
+        local rc, rp = _readU16LE(data, pos); if not rc then if TOOLTIP_DEBUG then print("[DES] truncated row count") end; return nil end; pos = rp
+        if rc > MAX_ROWS_PER_SECTION then if TOOLTIP_DEBUG then print("[DES] row count " .. tostring(rc) .. " exceeds max " .. tostring(MAX_ROWS_PER_SECTION)) end; rc = MAX_ROWS_PER_SECTION end
         local rows = {}
         for _ = 1, rc do
-          local rt, rr = _readU8(data, pos); if not rt then print("[DES] truncated row type"); return nil end; pos = rr
-          local ic, ir = _readU8(data, pos); if not ic then print("[DES] truncated icon"); return nil end; pos = ir
-          local lb, lr = _readStr16(data, pos); if not lb then print("[DES] truncated label"); return nil end; pos = lr
-          local vl, vr = _readStr16(data, pos); if not vl then print("[DES] truncated value"); return nil end; pos = vr
-          local cl, cr = _readU32LE(data, pos); if not cl then print("[DES] truncated color"); return nil end; pos = cr
+          local rt, rr = _readU8(data, pos); if not rt then if TOOLTIP_DEBUG then print("[DES] truncated row type") end; return nil end; pos = rr
+          local ic, ir = _readU8(data, pos); if not ic then if TOOLTIP_DEBUG then print("[DES] truncated icon") end; return nil end; pos = ir
+          local lb, lr = _readStr16(data, pos); if not lb then if TOOLTIP_DEBUG then print("[DES] truncated label") end; return nil end; pos = lr
+          local vl, vr = _readStr16(data, pos); if not vl then if TOOLTIP_DEBUG then print("[DES] truncated value") end; return nil end; pos = vr
+          local cl, cr = _readU32LE(data, pos); if not cl then if TOOLTIP_DEBUG then print("[DES] truncated color") end; return nil end; pos = cr
           local colorStr = nil
           if cl ~= 0 and cl <= 0xFFFFFF then colorStr = string.format("#%06x", cl)
           elseif cl ~= 0 then colorStr = string.format("#%06x", cl % 0x1000000) end
@@ -3039,12 +3041,12 @@ function ServerData._deserialize(data)
       scalars[tag] = sections
       _rxLog(rx_before, tag, "section", pos - rx_before - 1, pos)
     elseif tag == ST.FOOTER then
-      local fc, np = _readU16LE(data, pos); if not fc then print("[DES] truncated footer count"); return nil end; pos = np
-      if fc > MAX_FOOTER_ITEMS then print("[DES] footer count " .. tostring(fc) .. " exceeds max " .. tostring(MAX_FOOTER_ITEMS)); fc = MAX_FOOTER_ITEMS end
+      local fc, np = _readU16LE(data, pos); if not fc then if TOOLTIP_DEBUG then print("[DES] truncated footer count") end; return nil end; pos = np
+      if fc > MAX_FOOTER_ITEMS then if TOOLTIP_DEBUG then print("[DES] footer count " .. tostring(fc) .. " exceeds max " .. tostring(MAX_FOOTER_ITEMS)) end; fc = MAX_FOOTER_ITEMS end
       local footer = {}
       for _ = 1, fc do
-        local lb, lp = _readStr16(data, pos); if not lb then print("[DES] truncated footer label"); return nil end; pos = lp
-        local vl, vp = _readStr16(data, pos); if not vl then print("[DES] truncated footer value"); return nil end; pos = vp
+        local lb, lp = _readStr16(data, pos); if not lb then if TOOLTIP_DEBUG then print("[DES] truncated footer label") end; return nil end; pos = lp
+        local vl, vp = _readStr16(data, pos); if not vl then if TOOLTIP_DEBUG then print("[DES] truncated footer value") end; return nil end; pos = vp
         table.insert(footer, { label = lb, value = vl })
       end
       scalars[tag] = footer
@@ -3060,36 +3062,36 @@ function ServerData._deserialize(data)
         or tag == ST.LIFE_LEECH_CHANCE or tag == ST.LIFE_LEECH_AMOUNT
         or tag == ST.MANA_LEECH_CHANCE or tag == ST.MANA_LEECH_AMOUNT
         or tag == ST.WRITTEN_DATE then
-      local val, np = _readS32LE(data, pos); if not val then print("[DES] truncated s32"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readS32LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated s32") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "s32", 4, pos, val)
     elseif tag == ST.DURATION then
-      local val, np = _readU32LE(data, pos); if not val then print("[DES] truncated u32"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readU32LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated u32") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "u32", 4, pos, val)
     elseif tag == ST.CHARGES or tag == ST.CONTAINER_CAP then
-      local val, np = _readU16LE(data, pos); if not val then print("[DES] truncated u16"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readU16LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated u16") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "u16", 2, pos, val)
     elseif tag == ST.WEIGHT then
-      local val, np = _readU32LE(data, pos); if not val then print("[DES] truncated u32"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readU32LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated u32") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "u32", 4, pos, val)
     elseif (tag >= ST.ABSORB_PHYSICAL and tag <= ST.ABSORB_MAGIC) or tag == ST.ELEMENT_DAMAGE then
-      local val, np = _readS16LE(data, pos); if not val then print("[DES] truncated s16"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readS16LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated s16") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "s16", 2, pos, val)
     elseif tag == ST.CATEGORY or tag == ST.RARITY
         or tag == ST.FLUID_TYPE or tag == ST.WEAPON_TYPE
         or tag == ST.SHOOTRANGE or tag == ST.LIGHT_LEVEL or tag == ST.LIGHT_COLOR then
-      local val, np = _readU8(data, pos); if not val then print("[DES] truncated u8"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readU8(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated u8") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "u8", 1, pos, val)
     elseif tag == ST.ELEMENT_TYPE then
-      local val, np = _readU16LE(data, pos); if not val then print("[DES] truncated u16"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readU16LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated u16") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "u16", 2, pos, val)
     elseif tag == ST.HITCHANCE then
-      local val, np = _readS8(data, pos); if not val then print("[DES] truncated s8"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readS8(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated s8") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "s8", 1, pos, val)
     elseif tag == ST.DECAYING or tag == ST.MANASHIELD or tag == ST.INVISIBLE then
-      local val, np = _readU8(data, pos); if not val then print("[DES] truncated bool"); return nil end; scalars[tag] = (val ~= 0); pos = np
+      local val, np = _readU8(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated bool") end; return nil end; scalars[tag] = (val ~= 0); pos = np
       _rxLog(rx_before, tag, "bool", 1, pos, val ~= 0)
     elseif tag >= 39 and tag <= 49 then
-      local val, np = _readS32LE(data, pos); if not val then print("[DES] truncated skill"); return nil end; scalars[tag] = val; pos = np
+      local val, np = _readS32LE(data, pos); if not val then if TOOLTIP_DEBUG then print("[DES] truncated skill") end; return nil end; scalars[tag] = val; pos = np
       _rxLog(rx_before, tag, "skill(s32)", 4, pos, val)
     else
       _rxLog(rx_before, tag, "UNKNOWN", 0, pos)
@@ -3098,7 +3100,7 @@ function ServerData._deserialize(data)
     end
   end
 
-  if DEBUG then
+  if TOOLTIP_DEBUG then
     print("[game_tooltip] ║  --- All decoded scalar fields ---")
     for k, v in pairs(scalars) do
       local kname = "?"
